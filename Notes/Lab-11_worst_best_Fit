@@ -1,0 +1,169 @@
+import copy
+
+# --- Component Design: Classes for Memory and Processes ---
+class MemoryBlock:
+    def __init__(self, size, is_free=True, process_id=None):
+        self.size = size
+        self.is_free = is_free
+        self.process_id = process_id
+
+class Process:
+    def __init__(self, pid, size):
+        self.pid = pid
+        self.size = size
+
+
+# --- Utility: Print memory state ---
+def print_memory_layout(memory):
+    print("\n--- Memory Layout ---")
+    layout = "|"
+    for block in memory:
+        if block.is_free:
+            layout += f" Free({block.size}K) |"
+        else:
+            layout += f" P{block.process_id}({block.size}K) |"
+    print(layout)
+    print("-" * len(layout))
+
+
+# ------------------------------------------------------------
+#   FIRST FIT  (already provided, included for completeness)
+# ------------------------------------------------------------
+def first_fit(initial_holes, processes):
+    print("\n\n>>>--- Starting First Fit Simulation ---<<<")
+    memory = [MemoryBlock(size=h) for h in initial_holes]
+
+    for process in processes:
+        allocated = False
+        for i, block in enumerate(memory):
+            if block.is_free and block.size >= process.size:
+                print(f"Allocating P{process.pid} (size {process.size}K) to hole of size {block.size}K")
+
+                # Split if needed
+                if block.size > process.size:
+                    remaining = block.size - process.size
+                    memory.insert(i + 1, MemoryBlock(size=remaining))
+
+                block.size = process.size
+                block.is_free = False
+                block.process_id = process.pid
+                allocated = True
+                break
+
+        if not allocated:
+            print(f"Process P{process.pid} could not be allocated.")
+
+    print_memory_layout(memory)
+    return memory
+
+
+# ------------------------------------------------------------
+#   BEST FIT IMPLEMENTATION
+# ------------------------------------------------------------
+def best_fit(initial_holes, processes):
+    print("\n\n>>>--- Starting Best Fit Simulation ---<<<")
+    memory = [MemoryBlock(size=h) for h in initial_holes]
+
+    for process in processes:
+        best_index = None
+        best_remainder = float("inf")
+
+        # Search whole memory for best fit
+        for i, block in enumerate(memory):
+            if block.is_free and block.size >= process.size:
+                leftover = block.size - process.size
+                if leftover < best_remainder:
+                    best_remainder = leftover
+                    best_index = i
+
+        if best_index is None:
+            print(f"Process P{process.pid} could not be allocated.")
+            continue
+
+        block = memory[best_index]
+        print(f"Allocating P{process.pid} (size {process.size}K) to best hole of size {block.size}K")
+
+        # Split block
+        if block.size > process.size:
+            remaining = block.size - process.size
+            memory.insert(best_index + 1, MemoryBlock(size=remaining))
+
+        block.size = process.size
+        block.is_free = False
+        block.process_id = process.pid
+
+    print_memory_layout(memory)
+    return memory
+
+
+# ------------------------------------------------------------
+#   WORST FIT IMPLEMENTATION
+# ------------------------------------------------------------
+def worst_fit(initial_holes, processes):
+    print("\n\n>>>--- Starting Worst Fit Simulation ---<<<")
+    memory = [MemoryBlock(size=h) for h in initial_holes]
+
+    for process in processes:
+        worst_index = None
+        worst_remainder = -1
+
+        # Search for the largest fitting hole
+        for i, block in enumerate(memory):
+            if block.is_free and block.size >= process.size:
+                leftover = block.size - process.size
+                if leftover > worst_remainder:
+                    worst_remainder = leftover
+                    worst_index = i
+
+        if worst_index is None:
+            print(f"Process P{process.pid} could not be allocated.")
+            continue
+
+        block = memory[worst_index]
+        print(f"Allocating P{process.pid} (size {process.size}K) to worst hole of size {block.size}K")
+
+        # Split block
+        if block.size > process.size:
+            remaining = block.size - process.size
+            memory.insert(worst_index + 1, MemoryBlock(size=remaining))
+
+        block.size = process.size
+        block.is_free = False
+        block.process_id = process.pid
+
+    print_memory_layout(memory)
+    return memory
+
+
+# ------------------------------------------------------------
+#   ANALYSIS: FREE SPACE & LARGEST CONTIGUOUS FREE BLOCK
+# ------------------------------------------------------------
+def analyze(memory):
+    free_blocks = [b.size for b in memory if b.is_free]
+    total_free = sum(free_blocks)
+    max_free = max(free_blocks) if free_blocks else 0
+
+    print(f"Total Free Memory: {total_free}K")
+    print(f"Largest Contiguous Free Block: {max_free}K\n")
+
+    return total_free, max_free
+
+if __name__ == "__main__":
+    initial_memory_holes = [100, 500, 200, 300, 600]
+    processes_to_allocate = [
+        Process(1, 212), Process(2, 417),Process(3, 112), Process(4, 426)
+    ]
+    ff = first_fit(copy.deepcopy(initial_memory_holes), processes_to_allocate)
+    bf = best_fit(copy.deepcopy(initial_memory_holes), processes_to_allocate)
+    wf = worst_fit(copy.deepcopy(initial_memory_holes), processes_to_allocate)
+    print("\n===== ANALYSIS RESULTS =====")
+    print("\n→ First Fit:")
+    analyze(ff)
+    print("\n→ Best Fit:")
+    analyze(bf)
+    print("\n→ Worst Fit:")
+    analyze(wf)
+    
+    
+
+    
