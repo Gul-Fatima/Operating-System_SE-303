@@ -1,0 +1,84 @@
+from collections import deque
+
+# ---------------- FIFO Implementation ----------------
+def fifo_page_replacement(page_reference_string, num_frames):
+    print("\n--- Starting FIFO Simulation ---")
+    print(f"Page Reference String: {page_reference_string}")
+    print(f"Number of Frames: {num_frames}")
+    print("-------------------------------")
+
+    frames = deque()
+    page_faults = 0
+
+    for page in page_reference_string:
+        if page not in frames:
+            if len(frames) == num_frames:
+                removed = frames.popleft()
+                print(f"Page {removed} removed (Oldest).")
+            frames.append(page)
+            page_faults += 1
+            print(f"Page {page} added -> FAULT -> Frames: {list(frames)}")
+        else:
+            print(f"Page {page} already in frames -> HIT -> Frames: {list(frames)}")
+
+    print("-------------------------------")
+    print(f"Total Page Faults (FIFO): {page_faults}")
+    return page_faults
+
+
+# ---------------- LRU Implementation ----------------
+def lru_page_replacement(page_reference_string, num_frames):
+    print("\n--- Starting LRU Simulation ---")
+    print(f"Page Reference String: {page_reference_string}")
+    print(f"Number of Frames: {num_frames}")
+    print("-------------------------------")
+
+    frames = []
+    page_faults = 0
+
+    for page in page_reference_string:
+        if page in frames:
+            frames.remove(page)
+            frames.append(page)
+            print(f"Page {page} accessed -> HIT -> Frames: {frames}")
+        else:
+            page_faults += 1
+            if len(frames) == num_frames:
+                removed = frames.pop(0)
+                print(f"Page {removed} removed (Least Recently Used).")
+            frames.append(page)
+            print(f"Page {page} added -> FAULT -> Frames: {frames}")
+
+    print("-------------------------------")
+    print(f"Total Page Faults (LRU): {page_faults}")
+    return page_faults
+
+
+# ---------------- Main Analysis ----------------
+if __name__ == "__main__":
+    # Input Data
+    reference_string = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]
+    frame_count = 3
+
+    # Run both algorithms
+    fifo_faults = fifo_page_replacement(reference_string, frame_count)
+    lru_faults = lru_page_replacement(reference_string, frame_count)
+
+    # Summary Table
+    print("\n===== COMPARISON TABLE =====")
+    print(f"{'Algorithm':<10} | {'Total Page Faults':<18}")
+    print("-" * 35)
+    print(f"{'FIFO':<10} | {fifo_faults:<18}")
+    print(f"{'LRU':<10} | {lru_faults:<18}")
+    print("=" * 35)
+
+    # Analysis
+    print("\n--- ANALYSIS & CONCLUSION ---")
+    if lru_faults < fifo_faults:
+        print(f"LRU performed better ({lru_faults} faults vs {fifo_faults} for FIFO).")
+    elif fifo_faults < lru_faults:
+        print(f"FIFO performed better ({fifo_faults} faults vs {lru_faults} for LRU).")
+    else:
+        print("Both algorithms performed equally on this workload.")
+
+    
