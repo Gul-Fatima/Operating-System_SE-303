@@ -1,0 +1,57 @@
+family = ['Joe','john']
+shoe_color = { "Joe" : "brown", 'john' : 'black'}
+shoe_size = { "Joe" : 27, 'john' : 3}
+
+for i in family:
+	if shoe_size[i] > 10:
+		print (f"{i} wears large shoe size {shoe_size[i]} and likes {shoe_color[i]}.")
+	else:
+		print (f"{i} wears shoe size {shoe_size[i]} and likes {shoe_color[i]}.")
+
+###
+#Filter Even Numbers: Loop through and print out all even numbers from a given list of numbers. Do
+#not print any numbers that come after 237 in the list. 
+lst_even = [2,5,7,43,7,56,6,22,29,724]
+for i in lst_even:
+	if i < 237 and i% 2 == 0:
+		print (i)
+		
+'''3. Sequential Arithmetic: Follow these instructions and print the result after each step:
+1. Assign a variable a to a starting value of 5.
+2. Add 6 to the result.
+3. Multiply the result by 2.
+4. Increment the result by 1.
+5. Subtract 9 from the result.
+6. Divide the final result by 7. '''
+a = 5
+print ("a is ",a)
+a += 6
+print (a)
+a *= 2
+print (a)
+a+=1
+print (a)
+a -= 9
+print (a)
+a /= 7
+print (a)
+
+'''4. Disk Space Monitor: Write a Python script that monitors disk space on your system and prints a
+warning if the usage is above 90%.
+Hints:
+You'll need to install a third-party library called psutil.
+Open your terminal and run: pip install psutil
+Use the following code snippet as a starting point:
+import psutil
+# Get usage statistics for the root directory '/'
+usage = psutil.disk_usage('/')
+# Get the usage percentage
+percent_used = usage.percent
+print(f"Disk usage is at {percent_used}%")
+# Now, add an if statement to check if it's over the threshold'''
+import psutil
+usage = psutil.disk_usage('/')
+perc = usage.percent
+print(f"Disk usage is {perc}")
+if perc > 20:
+	print ("disk usage is above thres")
